@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.tse.pri.ioarmband_android_keyboard.MyKeyboardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:orientation="vertical" 
+    android:background="#AAAAAA"
+    android:layout_gravity="center_vertical"
+     android:textAlignment="center">
+    
+      <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textAlignment="center"
+        android:layout_gravity="center_vertical"
+        android:text="ioArmBand keyboard"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+  
+
+</org.tse.pri.ioarmband_android_keyboard.MyKeyboardView>
