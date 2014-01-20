@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.tse.pri.ioarmband_android_keyboard"
+    package="org.tse.pri.ioarmband.client.android.keyboard"
     android:versionCode="1"
     android:versionName="1.0" >
 

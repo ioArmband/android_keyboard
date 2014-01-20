@@ -1,4 +1,4 @@
-package org.tse.pri.ioarmband_android_keyboard;
+package org.tse.pri.ioarmband.client.android.keyboard;
 
 import android.content.Context;
 import android.util.AttributeSet;

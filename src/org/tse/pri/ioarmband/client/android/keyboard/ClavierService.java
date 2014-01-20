@@ -1,4 +1,4 @@
-package org.tse.pri.ioarmband_android_keyboard;
+package org.tse.pri.ioarmband.client.android.keyboard;
 
 import android.inputmethodservice.InputMethodService;
 import android.view.View;

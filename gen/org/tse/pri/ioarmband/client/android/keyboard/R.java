@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package org.tse.pri.ioarmband_android_keyboard;
+package org.tse.pri.ioarmband.client.android.keyboard;
 
 public final class R {
     public static final class attr {

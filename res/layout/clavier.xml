@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.tse.pri.ioarmband_android_keyboard.MyKeyboardView xmlns:android="http://schemas.android.com/apk/res/android"
+<org.tse.pri.ioarmband.client.android.keyboard.MyKeyboardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="48dp"
     android:orientation="vertical" 
@@ -18,4 +18,4 @@
 
   
 
-</org.tse.pri.ioarmband_android_keyboard.MyKeyboardView>
+</org.tse.pri.ioarmband.client.android.keyboard.MyKeyboardView>
