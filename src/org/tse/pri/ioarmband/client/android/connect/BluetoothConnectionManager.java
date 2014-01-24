@@ -11,11 +11,11 @@ import org.tse.pri.ioarmband.io.connection.StreamedConnection;
 
 import android.bluetooth.BluetoothSocket;
 
-public class ManageBluetoothConnexion {
+public class BluetoothConnectionManager {
 
-	public static UUID CLIENT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
 
-	private static ManageBluetoothConnexion instance = null;
+
+	private static BluetoothConnectionManager instance = null;
 
 	private StreamedConnection streamConnection;
 
@@ -24,18 +24,19 @@ public class ManageBluetoothConnexion {
 	private BluetoothSocket bluetoothSocket;
 	
 	
-	private ManageBluetoothConnexion()
+	private BluetoothConnectionManager()
 	{
 		super();
 		streamConnection = null;
+		
 	}
 	
 	
 	
-	public static synchronized ManageBluetoothConnexion getInstance() {
+	public static synchronized BluetoothConnectionManager getInstance() {
 		if(instance == null)
 		{
-			instance = new ManageBluetoothConnexion();
+			instance = new BluetoothConnectionManager();
 		}
 		return instance;
 	}

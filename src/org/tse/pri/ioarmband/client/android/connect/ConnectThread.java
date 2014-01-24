@@ -18,18 +18,19 @@ public class ConnectThread extends Thread {
 	       mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	       
 	       try {
-	           tmp = device.createRfcommSocketToServiceRecord(ManageBluetoothConnexion.CLIENT_UUID);
+	           tmp = device.createRfcommSocketToServiceRecord(BluetoothDiscoveryManager.CLIENT_UUID);
 	       } catch (IOException e) { }
 	       mmSocket = tmp;
 	   }
 	   @Override
 	   public void run() {
-	       mBluetoothAdapter.cancelDiscovery();
+		   if(mBluetoothAdapter.isDiscovering())
+			   mBluetoothAdapter.cancelDiscovery();
 	       try {
 	    	   
 	           mmSocket.connect();
 	           Log.d("ConnectThread","connect to device "+mmDevice.getName());
-	           ManageBluetoothConnexion.getInstance().newConnection(mmSocket);
+	           BluetoothConnectionManager.getInstance().newConnection(mmSocket);
 	         
 	           
 	       } catch (IOException connectException) {
