@@ -2,8 +2,6 @@ package org.tse.pri.ioarmband.client.android.connect;
 
 import java.io.IOException;
 
-import org.tse.pri.ioarmband.io.connection.StreamedConnection;
-
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -13,8 +11,6 @@ public class ConnectThread extends Thread {
 	   private final BluetoothSocket mmSocket;
 	   private final BluetoothDevice mmDevice;
 	   private BluetoothAdapter mBluetoothAdapter;
-	 
-	   
 	   
 	   public ConnectThread(BluetoothDevice device) {
 	       BluetoothSocket tmp = null;
@@ -22,7 +18,7 @@ public class ConnectThread extends Thread {
 	       mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	       
 	       try {
-	           tmp = device.createRfcommSocketToServiceRecord(BluetoothUtil.CLIENT_UUID);
+	           tmp = device.createRfcommSocketToServiceRecord(ManageBluetoothConnexion.CLIENT_UUID);
 	       } catch (IOException e) { }
 	       mmSocket = tmp;
 	   }
@@ -33,8 +29,8 @@ public class ConnectThread extends Thread {
 	    	   
 	           mmSocket.connect();
 	           Log.d("ConnectThread","connect to device "+mmDevice.getName());
-	           
-	           StreamedConnection streamConnection;
+	           ManageBluetoothConnexion.getInstance().newConnection(mmSocket);
+	         
 	           
 	       } catch (IOException connectException) {
 	           try {

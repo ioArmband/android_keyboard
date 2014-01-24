@@ -2,10 +2,18 @@ package org.tse.pri.ioarmband.client.android.keyboard;
 
 import java.util.Set;
 
-import org.tse.pri.ioarmband.client.android.connect.BluetoothUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tse.pri.ioarmband.client.android.connect.ConnectThread;
+import org.tse.pri.ioarmband.client.android.connect.IBeginConnectionListener;
+import org.tse.pri.ioarmband.client.android.connect.ManageBluetoothConnexion;
+import org.tse.pri.ioarmband.io.connection.IConnectionListener;
+import org.tse.pri.ioarmband.io.message.Command;
+import org.tse.pri.ioarmband.io.message.GestureMessage;
+import org.tse.pri.ioarmband.io.message.enums.GestureType;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothA2dp;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -30,7 +38,11 @@ public class MainActivity extends Activity {
 	BluetoothAdapter bluetoothAdapter;
 	
 	private final static int REQUEST_CODE_ENABLE_BLUETOOTH = 0;
+	private static Logger logger = LoggerFactory.getLogger(MainActivity.class);
 	
+	private ManageBluetoothConnexion manageBluetoothConnexion;
+
+	 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -51,6 +63,15 @@ public class MainActivity extends Activity {
 			tvEtat.setText("pas de bluetooth");
 		}
 		
+		manageBluetoothConnexion = ManageBluetoothConnexion.getInstance();
+		
+		manageBluetoothConnexion.addConnectionListener(connectionBluetooth);
+		manageBluetoothConnexion.addBeginConnectionListener(connectionBegin);
+		
+	
+		logger.info("My Application Created");
+       
+		
 	}
 
 	@Override
@@ -62,11 +83,43 @@ public class MainActivity extends Activity {
 	}
 	
 		
+	private IConnectionListener connectionBluetooth = new IConnectionListener() {
 
+		@Override
+		public void onConnectionClose() {
+			Log.d("MainActivity","onConnectionClose");
+			tvEtat.setText("Connexion close");
+		}
+
+		@Override
+		public void onCommandReiceved(Command arg0) {
+			Log.d("MainActivity","onCommandReiceved");
+
+		}
+	};
+	
+	private IBeginConnectionListener connectionBegin = new IBeginConnectionListener() {
+		
+		@Override
+		public void onConnectionBegin() {
+			Log.d("MainActivity","onConnectionBegin");
+			
+			runOnUiThread(new Runnable() {
+			     @Override
+			     public void run() {
+			    	 tvEtat.setText("Connexion done");
+			    }
+			});
+			
+			
+			
+			
+		}
+	};
 		
 	private OnClickListener clickBtConnect = new OnClickListener() {
 		public void onClick(View v) {
-			tvEtat.setText("Button Connect click");
+			//tvEtat.setText("Button Connect click");
 			
 			if (!bluetoothAdapter.isEnabled()) {
 				   Intent enableBlueTooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -74,26 +127,27 @@ public class MainActivity extends Activity {
 				}
 			
 			 
-			   
+			bluetoothAdapter.startDiscovery();
+			
+			
 			Set<BluetoothDevice> bluetoothDevices =  bluetoothAdapter.getBondedDevices();
 			
 			for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
-				boolean UuidsWithSdp = bluetoothDevice.fetchUuidsWithSdp();
 				
 				Log.d("MainActivity","Device : "+bluetoothDevice.getName());
-				Log.d("MainActivity","UuidsWithSdp : "+UuidsWithSdp);
+				Log.d("MainActivity","Etat : "+bluetoothDevice.getBondState());
 				
 				ParcelUuid[] uuids = bluetoothDevice.getUuids();
 				
 				for (int i = 0; i < uuids.length; i++) {
 					Log.d("MainActivity",uuids[i].toString());
-					//bluetoothDevice.
-					//UUID CLIENT_UUID = UUID.fromString("4c2054e4f8d33f530f79aa3b5712c799");
-				
-				
+					//TODO: gestion multi conexion
+					if(uuids[i].toString().equals(ManageBluetoothConnexion.CLIENT_UUID.toString())){
+						ConnectThread connect = new ConnectThread(bluetoothDevice);
+						connect.start();
+						
+					}
 				}
-				ConnectThread connect = new ConnectThread(bluetoothDevice);
-				connect.start();
 				Log.d("MainActivity"," ");
 			}
 
@@ -102,14 +156,30 @@ public class MainActivity extends Activity {
 
 	private OnClickListener clickBtDisconnect = new OnClickListener() {
 		public void onClick(View v) {
-			tvEtat.setText("Button Disconnect click");
+			//tvEtat.setText("Button Disconnect click");
+		
+			manageBluetoothConnexion.closeConnection();
 			
+			Log.d("MainActivity","manageBluetoothConnexion.closeConnection() ");
+		
 		}
 	};
 
 	private OnClickListener clickBtSend = new OnClickListener() {
 		public void onClick(View v) {
-			tvEtat.setText("Button Send click");
+			
+			
+			GestureMessage msg = new GestureMessage();
+			msg.setType(GestureType.TOUCH);
+			msg.setSourceName("send via keyboard android");
+			manageBluetoothConnexion.getStreamConnection().sendCommand(new Command(msg));
+			
+			
+			
+			
+			
+			
+			
 		}
 	};
 
@@ -126,12 +196,15 @@ public class MainActivity extends Activity {
 	}
 	
 	
+
+	
 	@Override
 	protected void onDestroy() {
 		if(bluetoothAdapter.isDiscovering())
 		{
 			bluetoothAdapter.cancelDiscovery();
 		}
+		manageBluetoothConnexion.closeConnection();
 		super.onDestroy();
 		
 	}
