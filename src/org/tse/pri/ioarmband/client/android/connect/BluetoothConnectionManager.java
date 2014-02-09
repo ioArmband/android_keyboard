@@ -3,8 +3,6 @@ package org.tse.pri.ioarmband.client.android.connect;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.UUID;
 
 import org.tse.pri.ioarmband.io.connection.IConnectionListener;
 import org.tse.pri.ioarmband.io.connection.StreamedConnection;
@@ -12,8 +10,6 @@ import org.tse.pri.ioarmband.io.connection.StreamedConnection;
 import android.bluetooth.BluetoothSocket;
 
 public class BluetoothConnectionManager {
-
-
 
 	private static BluetoothConnectionManager instance = null;
 
@@ -72,7 +68,11 @@ public class BluetoothConnectionManager {
 			listener.onConnectionBegin();
 		}
 	}
-	
+	public void addBeginConnectionListener(IBeginConnectionListener beginlistener)
+	{
+		this.beginlistener.add(beginlistener);		
+		
+	} 
 	public void closeConnection()
 	{
 		if (streamConnection != null) {
@@ -86,7 +86,6 @@ public class BluetoothConnectionManager {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 			bluetoothSocket = null;
 		}
 	}
@@ -98,11 +97,7 @@ public class BluetoothConnectionManager {
 	}
 	
 
-		public void addBeginConnectionListener(IBeginConnectionListener beginlistener)
-		{
-			this.beginlistener.add(beginlistener);		
-			
-		} 
+	
 	  
 
 }

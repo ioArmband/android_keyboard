@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
 import android.os.ParcelUuid;
 import android.util.Log;
 
@@ -26,6 +25,8 @@ public class BluetoothDiscoveryManager {
 
 		Set<BluetoothDevice> bluetoothDevices =  bluetoothAdapter.getBondedDevices();
 		
+		
+		
 		for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
 			
 			Log.d("MainActivity","Device : "+bluetoothDevice.getName());
@@ -39,7 +40,7 @@ public class BluetoothDiscoveryManager {
 				if(uuids[i].toString().equals(BluetoothDiscoveryManager.CLIENT_UUID.toString())){
 					ConnectThread connect = new ConnectThread(bluetoothDevice);
 					connect.start();
-					
+					return;
 				}
 			}
 			Log.d("MainActivity"," ");

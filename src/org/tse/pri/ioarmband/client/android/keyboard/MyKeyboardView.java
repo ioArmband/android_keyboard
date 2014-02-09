@@ -2,7 +2,6 @@ package org.tse.pri.ioarmband.client.android.keyboard;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,7 +29,7 @@ public class MyKeyboardView extends LinearLayout{
 	{
 		
 		runOnUiThread(new Runnable() {
-		     @Override
+		     @Override   
 		     public void run() {
 		    	 TextView tvEtat = (TextView) findViewById(R.id.tv_etat_bluetooth);
 		 		tvEtat.setText(message);
@@ -47,8 +46,5 @@ public class MyKeyboardView extends LinearLayout{
 	{
 		
 	}
-
-	
-	
 
 }

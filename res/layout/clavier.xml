@@ -6,16 +6,30 @@
     android:background="#AAAAAA"
     android:layout_gravity="center_vertical"
      android:textAlignment="center">
-    
-      <TextView
-        android:id="@+id/tv_etat_bluetooth"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:textAlignment="center"
-        android:layout_gravity="center_vertical"
-        android:text="ioArmBand keyboard"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-  
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp" >
+
+        <Button
+            android:id="@+id/bt_send"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="Send" />
+
+        <TextView
+            android:id="@+id/tv_etat_bluetooth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:text="ioArmBand keyboard"
+            android:textAlignment="center"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    </RelativeLayout>
 
 </org.tse.pri.ioarmband.client.android.keyboard.MyKeyboardView>

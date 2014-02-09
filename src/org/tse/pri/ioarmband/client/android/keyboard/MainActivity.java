@@ -92,6 +92,7 @@ public class MainActivity extends Activity {
 		@Override
 		public void onCommandReiceved(Command arg0) {
 			Log.d("MainActivity","onCommandReiceved");
+			
 		}
 	};
 	
@@ -125,8 +126,7 @@ public class MainActivity extends Activity {
 
 	private OnClickListener clickBtDisconnect = new OnClickListener() {
 		public void onClick(View v) {
-			//tvEtat.setText("Button Disconnect click");
-		
+ 
 			manageBluetoothConnexion.closeConnection();
 			
 			Log.d("MainActivity","manageBluetoothConnexion.closeConnection() ");
@@ -138,7 +138,7 @@ public class MainActivity extends Activity {
 		public void onClick(View v) {
 			
 			GestureMessage msg = new GestureMessage();
-			msg.setType(GestureType.TOUCH);
+			msg.setType(GestureType.TOUCH); 
 			msg.setSourceName("send via keyboard android");
 			StreamedConnection streamedConnection = manageBluetoothConnexion.getStreamConnection();
 			
