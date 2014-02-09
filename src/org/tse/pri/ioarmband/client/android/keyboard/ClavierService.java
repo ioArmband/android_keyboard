@@ -1,18 +1,16 @@
 package org.tse.pri.ioarmband.client.android.keyboard;
 
 import org.tse.pri.ioarmband.client.android.connect.BluetoothConnectionManager;
-import org.tse.pri.ioarmband.client.android.connect.BluetoothDiscoveryManager;
-import org.tse.pri.ioarmband.client.android.connect.IBeginConnectionListener;
-import org.tse.pri.ioarmband.io.connection.IConnectionListener;
-import org.tse.pri.ioarmband.io.connection.StreamedConnection;
+import org.tse.pri.ioarmband.client.android.connect.ServiceConnection;
 import org.tse.pri.ioarmband.io.message.AppMessage;
+import org.tse.pri.ioarmband.io.message.CloseAppMessage;
 import org.tse.pri.ioarmband.io.message.Command;
 import org.tse.pri.ioarmband.io.message.GestureMessage;
-import org.tse.pri.ioarmband.io.message.KeyboardAppMessage;
 import org.tse.pri.ioarmband.io.message.enums.GestureType;
 
 import android.bluetooth.BluetoothAdapter;
 import android.inputmethodservice.InputMethodService;
+import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -20,25 +18,25 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Button;
+import android.widget.TextView;
 
 
-public class ClavierService extends InputMethodService {
+public class ClavierService extends InputMethodService implements ServiceConnection{
 
 	BluetoothAdapter bluetoothAdapter;
 	BluetoothConnectionManager bluetoothConnectionManager;
 	Button btSend;
 	MyKeyboardView inputView;
 	InputConnection inputConnection;
+	Handler mHandler;
 	
 	@Override
 	public View onCreateInputView() {
 		
 		inputView =  (MyKeyboardView) getLayoutInflater().inflate( R.layout.clavier, null);
-
-		
 		btSend = (Button) inputView.findViewById(R.id.bt_send);
 		btSend.setOnClickListener(clickBtSend);
-		
+		mHandler = new Handler();
 		return inputView;
 	}
 
@@ -48,21 +46,12 @@ public class ClavierService extends InputMethodService {
 		// TODO Auto-generated method stub
 		super.onStartInputView(info, restarting);
 		inputConnection = getCurrentInputConnection();
-		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		
-		if (bluetoothAdapter == null)
-		{
-			//tvEtat.setText("pas de bluetooth");
-		}
+	
 		
 		bluetoothConnectionManager = BluetoothConnectionManager.getInstance();
+
+		bluetoothConnectionManager.useConnection(this);
 		
-		if (bluetoothAdapter.isEnabled()) {
-			BluetoothDiscoveryManager.startdiscoveryDevice();
-		}
-		
-		bluetoothConnectionManager.addConnectionListener(connectionBluetooth);
-		bluetoothConnectionManager.addBeginConnectionListener(connectionBegin);	
 	}
 	
 	
@@ -71,65 +60,115 @@ public class ClavierService extends InputMethodService {
 	public void onFinishInput() {
 		// TODO Auto-generated method stub
 		super.onFinishInput();
-		if(bluetoothConnectionManager != null)
-			bluetoothConnectionManager.closeConnection();
+		Log.d("ClavierService","onFinishInput");	
+		bluetoothConnectionManager = BluetoothConnectionManager.getInstance();
+		bluetoothConnectionManager.removeUseConnection(this);
 		
 	}
 	
-	
-	
-	
-	private IConnectionListener connectionBluetooth = new IConnectionListener() {
-
-		@Override
-		public void onConnectionClose() {
-			Log.d("MainActivity","onConnectionClose");	
-			inputView.changeTextView("Connexion close");
+	@Override
+	public void onWindowShown() {
+		// TODO Auto-generated method stub
+		super.onWindowShown();
+		Log.d("ClavierService","onWindowShown");
 		
+		if(bluetoothConnectionManager.isConnected())
+		{
+			Log.d("MainActivity","send AppMessage during onWindowShown");
+			AppMessage msg = new AppMessage(AppMessage.AppStd.KEYBOARD_NUM);
+			bluetoothConnectionManager.sendMessage(msg);
 		}
-
-		@Override
-		public void onCommandReiceved(Command command) {
-			Log.d("MainActivity","onCommandReiceved");
-			
-			if(command.getClazz().equals(GestureMessage.class.getName()))
-			{
-				GestureMessage gestureMessage = (GestureMessage) command.getMessage();
-				if(gestureMessage.getType() == GestureType.TOUCH)
-				{
-					String msg = gestureMessage.getSourceName();
-					inputConnection.commitText(msg, 1);
-
-				}
-			}
-		}
-	};
+		
+	}
 	
+	@Override
+	public void onWindowHidden() {
+		super.onWindowHidden();
+		Log.d("ClavierService","onWindowHidden");	
+		if(bluetoothConnectionManager.isControlConnected(this))
+		{
+			CloseAppMessage msg = new CloseAppMessage();
+			bluetoothConnectionManager.sendMessage(msg);
+		}
+		
+
+	}
 
 	private OnClickListener clickBtSend = new OnClickListener() {
 		public void onClick(View v) {
 			 InputConnection ic = getCurrentInputConnection();
+			 
 			 KeyEvent keyEvent = new KeyEvent(KeyEvent.FLAG_SOFT_KEYBOARD,KeyEvent.KEYCODE_ENTER);
 			 ic.sendKeyEvent(keyEvent);
 
 		}
 	};
 	
-	private IBeginConnectionListener connectionBegin = new IBeginConnectionListener() {	
-		@Override
-		public void onConnectionBegin() {
-			Log.d("MainActivity","onConnectionBegin");
-			inputView.changeTextView("Connexion done");
-			
 
-			AppMessage msg = new AppMessage(AppMessage.AppStd.KEYBOARD_NUM);
-			StreamedConnection streamedConnection = bluetoothConnectionManager.getStreamConnection();
-			
-			if(streamedConnection != null)
+
+	@Override
+	public void onCommandReiceved(Command command) {
+		Log.d("ClavierService","onCommandReiceved");
+		
+		if(command.getClazz().equals(GestureMessage.class.getName()))
+		{
+			GestureMessage gestureMessage = (GestureMessage) command.getMessage();
+			if(gestureMessage.getType() == GestureType.TOUCH)
 			{
-				streamedConnection.sendCommand(new Command(msg));
+				String msg = gestureMessage.getSourceName();
+				inputConnection.commitText(msg, 1);
+
 			}
-			
 		}
-	};
+	}
+
+	@Override
+	public void onConnectionClose() {
+		Log.d("ClavierService","onConnectionClose");	
+		inputView.changeTextView("Connexion close");
+	}
+
+	@Override
+	public void onConnectionBegin() {
+
+		Log.d("ClavierService","onConnectionBegin");
+		inputView.changeTextView("Connexion done");
+
+		AppMessage msg = new AppMessage(AppMessage.AppStd.KEYBOARD_NUM);
+		bluetoothConnectionManager.sendMessage(msg);
+
+	}
+
+	@Override
+	public void onWinControl() {
+		AppMessage msg = new AppMessage(AppMessage.AppStd.KEYBOARD_NUM);
+		bluetoothConnectionManager.sendMessage(msg);
+		Log.d("ClavierService","showWindow = true");
+		showWindowT(true);
+		
+		
+	}
+	public void showWindowT(final Boolean isVisible)
+	{
+		
+		runOnUiThread(new Runnable() {
+		     @Override   
+		     public void run() {
+		    	 showWindow(isVisible);
+		    }
+		});
+		
+	}
+
+	private void runOnUiThread(Runnable runnable) {
+		mHandler.post(runnable);
+    }
+
+	@Override
+	public void onLoseControl() {
+		Log.d("ClavierService","showWindow = false");
+		//showWindowT(false);
+		hideWindow();
+		
+	}
 }

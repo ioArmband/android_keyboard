@@ -1,18 +1,19 @@
 package org.tse.pri.ioarmband.client.android.keyboard;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.tse.pri.ioarmband.client.android.connect.BluetoothConnectionManager;
-import org.tse.pri.ioarmband.client.android.connect.BluetoothDiscoveryManager;
-import org.tse.pri.ioarmband.client.android.connect.IBeginConnectionListener;
-import org.tse.pri.ioarmband.io.connection.IConnectionListener;
+import org.tse.pri.ioarmband.client.android.connect.ServiceConnection;
 import org.tse.pri.ioarmband.io.connection.StreamedConnection;
 import org.tse.pri.ioarmband.io.message.Command;
 import org.tse.pri.ioarmband.io.message.GestureMessage;
 import org.tse.pri.ioarmband.io.message.enums.GestureType;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,14 +24,15 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity  implements ServiceConnection {
 
 	Button btConnect;
 	Button btDisconnect;
 	Button btSend;
+	Button btSmsService;
 	TextView tvEtat;
 	BluetoothAdapter bluetoothAdapter;
-	
+	MainActivity activity;
 	
 	private static Logger logger = LoggerFactory.getLogger(MainActivity.class);
 	
@@ -42,7 +44,7 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
+		activity = this;
 		btConnect = (Button) findViewById(R.id.bt_connect);
 		btConnect.setOnClickListener(clickBtConnect);
 		btDisconnect = (Button) findViewById(R.id.bt_disconnect);
@@ -50,7 +52,8 @@ public class MainActivity extends Activity {
 		btSend = (Button) findViewById(R.id.bt_send);
 		btSend.setOnClickListener(clickBtSend);
 		tvEtat = (TextView) findViewById(R.id.tv_etat_bluetooth);
-
+		btSmsService =(Button) findViewById(R.id.bt_launchService);
+		btSmsService.setOnClickListener(clickBtLaunchService);
 		
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (bluetoothAdapter == null)
@@ -59,11 +62,6 @@ public class MainActivity extends Activity {
 		}
 		
 		manageBluetoothConnexion = BluetoothConnectionManager.getInstance();
-		
-		manageBluetoothConnexion.addConnectionListener(connectionBluetooth);
-		manageBluetoothConnexion.addBeginConnectionListener(connectionBegin);
-		
-	
 		logger.info("My Application Created");
 
 	}
@@ -74,60 +72,41 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-	
-		
-	private IConnectionListener connectionBluetooth = new IConnectionListener() {
 
-		@Override
-		public void onConnectionClose() {
-			Log.d("MainActivity","onConnectionClose");
-			runOnUiThread(new Runnable() {
-			     @Override
-			     public void run() {
-			    	 tvEtat.setText("Connexion close");
-			    }
-			});	
-		}
-
-		@Override
-		public void onCommandReiceved(Command arg0) {
-			Log.d("MainActivity","onCommandReiceved");
-			
+	 public boolean isServiceRunning(ActivityManager am,String nomService){          
+	        List<RunningServiceInfo> services = am.getRunningServices(100);        
+	        for(ActivityManager.RunningServiceInfo rsi:services){            
+	            if(rsi.process.equals(nomService)){                
+	                return true;
+	            }
+	        }
+	        return false;
+	    }
+	 
+	private OnClickListener clickBtLaunchService = new OnClickListener() {
+		public void onClick(View v) {
+			ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+			if(!isServiceRunning(activityManager,"SmsService"))
+			{
+				Intent serviceIntent = new Intent();
+				serviceIntent.setClass(activity,SmsService.class);
+				startService(serviceIntent);
+			}
 		}
 	};
 	
-	private IBeginConnectionListener connectionBegin = new IBeginConnectionListener() {	
-		@Override
-		public void onConnectionBegin() {
-			Log.d("MainActivity","onConnectionBegin");
-			
-			runOnUiThread(new Runnable() {
-			     @Override
-			     public void run() {
-			    	 tvEtat.setText("Connexion done");
-			    }
-			});
-		}
-	};
 		
 	private OnClickListener clickBtConnect = new OnClickListener() {
 		public void onClick(View v) {
-			//tvEtat.setText("Button Connect click");
-			
-			if (!bluetoothAdapter.isEnabled()) {
-				   Intent enableBlueTooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-				   startActivityForResult(enableBlueTooth, REQUEST_CODE_ENABLE_BLUETOOTH);
-				}
-			
-			BluetoothDiscoveryManager.startdiscoveryDevice();
-
+			//tvEtat.setText("Button Connect click"); 
+			manageBluetoothConnexion.useConnection(activity);
 		}
 	};
 
 	private OnClickListener clickBtDisconnect = new OnClickListener() {
 		public void onClick(View v) {
  
-			manageBluetoothConnexion.closeConnection();
+			manageBluetoothConnexion.removeUseConnection(activity);
 			
 			Log.d("MainActivity","manageBluetoothConnexion.closeConnection() ");
 		
@@ -140,12 +119,7 @@ public class MainActivity extends Activity {
 			GestureMessage msg = new GestureMessage();
 			msg.setType(GestureType.TOUCH); 
 			msg.setSourceName("send via keyboard android");
-			StreamedConnection streamedConnection = manageBluetoothConnexion.getStreamConnection();
-			
-			if(streamedConnection != null)
-			{
-				streamedConnection.sendCommand(new Command(msg));
-			}
+			BluetoothConnectionManager.getInstance().sendMessage(msg);
 		}
 	};
 
@@ -164,8 +138,51 @@ public class MainActivity extends Activity {
 	
 	@Override
 	protected void onDestroy() {
-		manageBluetoothConnexion.closeConnection();
+		manageBluetoothConnexion.removeUseConnection(activity);
 		super.onDestroy();
+		
+	}
+
+	@Override
+	public void onCommandReiceved(Command command) {
+		Log.d("MainActivity","onCommandReiceved");
+		
+		}
+
+	@Override
+	public void onConnectionClose() {
+		Log.d("MainActivity","onConnectionClose");
+		runOnUiThread(new Runnable() {
+		     @Override
+		     public void run() {
+		    	 tvEtat.setText("Connexion close");
+		    }
+		});	
+	}
+
+
+
+	@Override
+	public void onConnectionBegin() {
+		Log.d("MainActivity","onConnectionBegin");
+		
+		runOnUiThread(new Runnable() {
+		     @Override
+		     public void run() {
+		    	 tvEtat.setText("Connexion done");
+		    }
+		});
+	}
+
+	@Override
+	public void onWinControl() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onLoseControl() {
+		// TODO Auto-generated method stub
 		
 	}
 }

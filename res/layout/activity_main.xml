@@ -9,6 +9,7 @@
     tools:context=".MainActivity" >
 
     <LinearLayout
+        android:id="@+id/linearLayout1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -29,7 +30,6 @@
                 android:layout_centerHorizontal="true"
                 android:text="@string/hello_world"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
-
         </RelativeLayout>
 
         <LinearLayout
@@ -56,5 +56,13 @@
                 android:text="Send" />
         </LinearLayout>
     </LinearLayout>
+
+    <Button
+        android:id="@+id/bt_launchService"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayout1"
+        android:layout_centerHorizontal="true"
+        android:text="SmsService" />
 
 </RelativeLayout>

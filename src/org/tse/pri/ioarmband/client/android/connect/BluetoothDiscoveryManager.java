@@ -15,35 +15,37 @@ public class BluetoothDiscoveryManager {
 	
 	
 	public static void startdiscoveryDevice()
-	{
-		
-		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		if (bluetoothAdapter == null)
+	{ 
+		if(!BluetoothConnectionManager.getInstance().isConnected())
 		{
-			//TODO:tvEtat.setText("pas de bluetooth");
-		}
-
-		Set<BluetoothDevice> bluetoothDevices =  bluetoothAdapter.getBondedDevices();
-		
-		
-		
-		for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
-			
-			Log.d("MainActivity","Device : "+bluetoothDevice.getName());
-			Log.d("MainActivity","Etat : "+bluetoothDevice.getBondState());
-			
-			ParcelUuid[] uuids = bluetoothDevice.getUuids();
-			
-			for (int i = 0; i < uuids.length; i++) {
-				Log.d("MainActivity",uuids[i].toString());
-				//TODO: gestion multi conexion
-				if(uuids[i].toString().equals(BluetoothDiscoveryManager.CLIENT_UUID.toString())){
-					ConnectThread connect = new ConnectThread(bluetoothDevice);
-					connect.start();
-					return;
-				}
+			BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+			if (bluetoothAdapter == null)
+			{
+				//TODO:tvEtat.setText("pas de bluetooth");
 			}
-			Log.d("MainActivity"," ");
+	
+			Set<BluetoothDevice> bluetoothDevices =  bluetoothAdapter.getBondedDevices();
+			
+			
+			
+			for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
+				
+				Log.d("MainActivity","Device : "+bluetoothDevice.getName());
+				Log.d("MainActivity","Etat : "+bluetoothDevice.getBondState());
+				
+				ParcelUuid[] uuids = bluetoothDevice.getUuids();
+				
+				for (int i = 0; i < uuids.length; i++) {
+					Log.d("MainActivity",uuids[i].toString());
+					//TODO: gestion multi conexion
+					if(uuids[i].toString().equals(BluetoothDiscoveryManager.CLIENT_UUID.toString())){
+						ConnectThread connect = new ConnectThread(bluetoothDevice);
+						connect.start();
+						return;
+					}
+				}
+				Log.d("MainActivity"," ");
+			}
 		}
 	}
 	

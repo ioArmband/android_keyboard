@@ -38,6 +38,8 @@ public class MyKeyboardView extends LinearLayout{
 		
 	}
 
+	
+	
 	private void runOnUiThread(Runnable runnable) {
 		mHandler.post(runnable);
     }
