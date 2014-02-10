@@ -1,7 +1,7 @@
 package org.tse.pri.ioarmband.client.android.keyboard;
 
-import org.tse.pri.ioarmband.client.android.connect.BluetoothConnectionManager;
-import org.tse.pri.ioarmband.client.android.connect.ServiceConnection;
+import org.tse.pri.ioarmband.client.android.connect.BluetoothAndroidConnectionManager;
+import org.tse.pri.ioarmband.io.connection.manager.ServiceConnection;
 import org.tse.pri.ioarmband.io.message.AppMessage;
 import org.tse.pri.ioarmband.io.message.CloseAppMessage;
 import org.tse.pri.ioarmband.io.message.Command;
@@ -18,13 +18,12 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Button;
-import android.widget.TextView;
 
 
 public class ClavierService extends InputMethodService implements ServiceConnection{
 
 	BluetoothAdapter bluetoothAdapter;
-	BluetoothConnectionManager bluetoothConnectionManager;
+	BluetoothAndroidConnectionManager bluetoothConnectionManager;
 	Button btSend;
 	MyKeyboardView inputView;
 	InputConnection inputConnection;
@@ -37,6 +36,7 @@ public class ClavierService extends InputMethodService implements ServiceConnect
 		btSend = (Button) inputView.findViewById(R.id.bt_send);
 		btSend.setOnClickListener(clickBtSend);
 		mHandler = new Handler();
+		
 		return inputView;
 	}
 
@@ -48,10 +48,9 @@ public class ClavierService extends InputMethodService implements ServiceConnect
 		inputConnection = getCurrentInputConnection();
 	
 		
-		bluetoothConnectionManager = BluetoothConnectionManager.getInstance();
-
+		bluetoothConnectionManager = BluetoothAndroidConnectionManager.getInstance();
 		bluetoothConnectionManager.useConnection(this);
-		
+		securityWindowsHidden = false;
 	}
 	
 	
@@ -61,7 +60,7 @@ public class ClavierService extends InputMethodService implements ServiceConnect
 		// TODO Auto-generated method stub
 		super.onFinishInput();
 		Log.d("ClavierService","onFinishInput");	
-		bluetoothConnectionManager = BluetoothConnectionManager.getInstance();
+		bluetoothConnectionManager = BluetoothAndroidConnectionManager.getInstance();
 		bluetoothConnectionManager.removeUseConnection(this);
 		
 	}
@@ -72,26 +71,26 @@ public class ClavierService extends InputMethodService implements ServiceConnect
 		super.onWindowShown();
 		Log.d("ClavierService","onWindowShown");
 		
-		if(bluetoothConnectionManager.isConnected())
+		if(bluetoothConnectionManager.isConnected() && !bluetoothConnectionManager.isCurrentServiceControl(this))
 		{
-			Log.d("MainActivity","send AppMessage during onWindowShown");
-			AppMessage msg = new AppMessage(AppMessage.AppStd.KEYBOARD_NUM);
-			bluetoothConnectionManager.sendMessage(msg);
+			bluetoothConnectionManager.useConnection(this);
 		}
-		
+		securityWindowsHidden = false;
 	}
 	
+	boolean securityWindowsHidden;
 	@Override
 	public void onWindowHidden() {
 		super.onWindowHidden();
 		Log.d("ClavierService","onWindowHidden");	
-		if(bluetoothConnectionManager.isControlConnected(this))
+		if(bluetoothConnectionManager.isCurrentServiceControl(this))
 		{
-			CloseAppMessage msg = new CloseAppMessage();
-			bluetoothConnectionManager.sendMessage(msg);
+			if(!securityWindowsHidden)
+			{  
+				bluetoothConnectionManager = BluetoothAndroidConnectionManager.getInstance();
+				bluetoothConnectionManager.removeUseConnection(this);
+			}
 		}
-		
-
 	}
 
 	private OnClickListener clickBtSend = new OnClickListener() {
@@ -128,36 +127,30 @@ public class ClavierService extends InputMethodService implements ServiceConnect
 		inputView.changeTextView("Connexion close");
 	}
 
-	@Override
-	public void onConnectionBegin() {
-
-		Log.d("ClavierService","onConnectionBegin");
-		inputView.changeTextView("Connexion done");
-
-		AppMessage msg = new AppMessage(AppMessage.AppStd.KEYBOARD_NUM);
-		bluetoothConnectionManager.sendMessage(msg);
-
-	}
 
 	@Override
 	public void onWinControl() {
+		Log.d("ClavierService","onWinControl");
+		inputView.changeTextView("Has control");
+		
 		AppMessage msg = new AppMessage(AppMessage.AppStd.KEYBOARD_NUM);
 		bluetoothConnectionManager.sendMessage(msg);
 		Log.d("ClavierService","showWindow = true");
-		showWindowT(true);
 		
-		
+		if(!isInputViewShown())
+			showWindowT(true);
+
 	}
-	public void showWindowT(final Boolean isVisible)
-	{
-		
+
+	public void showWindowT(final Boolean isVisible) {
+
 		runOnUiThread(new Runnable() {
-		     @Override   
-		     public void run() {
-		    	 showWindow(isVisible);
-		    }
+			@Override
+			public void run() {
+				showWindow(isVisible);
+			}
 		});
-		
+
 	}
 
 	private void runOnUiThread(Runnable runnable) {
@@ -166,9 +159,21 @@ public class ClavierService extends InputMethodService implements ServiceConnect
 
 	@Override
 	public void onLoseControl() {
-		Log.d("ClavierService","showWindow = false");
+		Log.d("ClavierService","onLoseControl");
+		inputView.changeTextView("Lose control");
 		//showWindowT(false);
-		hideWindow();
+		if(isInputViewShown())
+		{
+			securityWindowsHidden = true;
+			hideWindow();
+		}
+	}
+
+	@Override
+	public void onConnectionStarted() {
+
+		Log.d("ClavierService","onConnectionStarted");
+		inputView.changeTextView("Connexion started");
 		
 	}
 }

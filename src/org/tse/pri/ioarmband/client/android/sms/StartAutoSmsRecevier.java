@@ -1,4 +1,4 @@
-package org.tse.pri.ioarmband.client.android.keyboard;
+package org.tse.pri.ioarmband.client.android.sms;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

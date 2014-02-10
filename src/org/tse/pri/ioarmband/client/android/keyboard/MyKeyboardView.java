@@ -1,5 +1,7 @@
 package org.tse.pri.ioarmband.client.android.keyboard;
 
+import org.tse.pri.ioarmband.client.android.keyboard.R;
+
 import android.content.Context;
 import android.os.Handler;
 import android.util.AttributeSet;

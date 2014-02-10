@@ -40,7 +40,7 @@
         </service>
 
         <activity
-            android:name="org.tse.pri.ioarmband.client.android.keyboard.MainActivity"
+            android:name="org.tse.pri.ioarmband.client.android.MainActivity"
             android:label="@string/title_activity_main" >
              <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,10 +49,10 @@
             </intent-filter>
         </activity>
         
-         <service android:name="org.tse.pri.ioarmband.client.android.keyboard.SmsService"
+         <service android:name="org.tse.pri.ioarmband.client.android.sms.SmsService"
         android:enabled="true"/>
         
-         <receiver android:name=".StartAutoSmsRecevier">
+         <receiver android:name="org.tse.pri.ioarmband.client.android.sms.StartAutoSmsRecevier">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>

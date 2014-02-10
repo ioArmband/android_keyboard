@@ -1,7 +1,7 @@
-package org.tse.pri.ioarmband.client.android.keyboard;
+package org.tse.pri.ioarmband.client.android.sms;
 
-import org.tse.pri.ioarmband.client.android.connect.BluetoothConnectionManager;
-import org.tse.pri.ioarmband.client.android.connect.ServiceConnection;
+import org.tse.pri.ioarmband.client.android.connect.BluetoothAndroidConnectionManager;
+import org.tse.pri.ioarmband.io.connection.manager.ServiceConnection;
 import org.tse.pri.ioarmband.io.message.Command;
 import org.tse.pri.ioarmband.io.message.GestureMessage;
 import org.tse.pri.ioarmband.io.message.Message;
@@ -24,7 +24,7 @@ public class SmsService extends Service  implements ServiceConnection{
 	  private IntentFilter intentFilter;
 	  private Message lastMessage;
 	  
-		BluetoothConnectionManager bluetoothConnectionManager = null;
+		BluetoothAndroidConnectionManager bluetoothConnectionManager = null;
 		BluetoothAdapter bluetoothAdapter = null;
 		
 	@Override
@@ -48,8 +48,7 @@ public class SmsService extends Service  implements ServiceConnection{
 		registerReceiver(smsReceiver, intentFilter);
 		lastMessage = null;
 		
-
-		bluetoothConnectionManager = BluetoothConnectionManager.getInstance();
+		bluetoothConnectionManager = BluetoothAndroidConnectionManager.getInstance();
 		
 	}
 
@@ -58,7 +57,7 @@ public class SmsService extends Service  implements ServiceConnection{
 	
 	@Override
 	public void onDestroy() {
-		// TODO Auto-generated method stub
+		bluetoothConnectionManager.removeUseConnection(smsService);
 		super.onDestroy();
 		  unregisterReceiver(smsReceiver);
 	}
@@ -70,14 +69,17 @@ public class SmsService extends Service  implements ServiceConnection{
 		@Override
 		public void onSmsReceived() {
 			Log.d("SmsService","onSmsReceived");
-			bluetoothConnectionManager.useConnection(smsService);
 			
-			if(bluetoothConnectionManager.isConnected())
+			if(bluetoothConnectionManager.isCurrentServiceControl(smsService) )
 			{
-				Log.d("SmsService","onSmsReceived isConnected");
+				Log.d("SmsService","sendSmsToioArmband");
 				sendSmsToioArmband();
 			}
-			
+			else
+			{
+				Log.d("SmsService","useConnection");
+				bluetoothConnectionManager.useConnection(smsService);
+			}
 		}
 	};
 	
@@ -120,22 +122,19 @@ public class SmsService extends Service  implements ServiceConnection{
 	@Override
 	public void onConnectionClose() {
 		Log.d("SmsService","onConnectionClose");	
-		bluetoothConnectionManager.removeUseConnection(smsService);
+		
 	}
-
-	@Override
-	public void onConnectionBegin() {
-		Log.d("SmsService","onConnectionBegin");
-
-		sendSmsToioArmband();
-	}
-
 
 	@Override
 	public void onWinControl() {
-		if(lastMessage != null)
+		
+		if(smsReceiver.sizeMessage()>0)
 		{
-			bluetoothConnectionManager.sendMessage(lastMessage);
+			sendSmsToioArmband();
+		}else if(lastMessage != null)
+			{
+				bluetoothConnectionManager.sendMessage(lastMessage);
+			
 		}
 	}
 
@@ -143,6 +142,15 @@ public class SmsService extends Service  implements ServiceConnection{
 	@Override
 	public void onLoseControl() {
 		
+		
+	}
+
+
+	@Override
+	public void onConnectionStarted() {
+		Log.d("SmsService","onConnectionStarted");
+
+	
 		
 	}
 }

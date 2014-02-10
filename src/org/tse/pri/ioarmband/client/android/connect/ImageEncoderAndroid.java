@@ -6,7 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
 
-public class ImageEncoder {
+public class ImageEncoderAndroid {
 	
 	public static String encodeTobase64(Bitmap image)
 	{

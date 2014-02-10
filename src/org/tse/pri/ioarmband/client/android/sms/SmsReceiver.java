@@ -1,4 +1,4 @@
-package org.tse.pri.ioarmband.client.android.keyboard;
+package org.tse.pri.ioarmband.client.android.sms;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.tse.pri.ioarmband.client.android.connect.ImageEncoder;
+import org.tse.pri.ioarmband.client.android.connect.ImageEncoderAndroid;
 import org.tse.pri.ioarmband.io.message.TextMessageAppMessage;
 
 import android.content.BroadcastReceiver;
@@ -87,7 +87,7 @@ public class SmsReceiver extends BroadcastReceiver{
 		           else
 		           {
 		        	   Log.d("SmsReceiver", "photoContact != null");
-		        	   imageEncoded= ImageEncoder.encodeTobase64(photoContact);
+		        	   imageEncoded= ImageEncoderAndroid.encodeTobase64(photoContact);
 		           }
 		           if(imageEncoded == null )
 		           {

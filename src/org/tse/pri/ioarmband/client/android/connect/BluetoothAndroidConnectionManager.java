@@ -1,19 +1,85 @@
 package org.tse.pri.ioarmband.client.android.connect;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.tse.pri.ioarmband.io.connection.IConnectionListener;
 import org.tse.pri.ioarmband.io.connection.StreamedConnection;
-import org.tse.pri.ioarmband.io.message.Command;
-import org.tse.pri.ioarmband.io.message.Message;
+import org.tse.pri.ioarmband.io.connection.manager.ConnectionManager;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
-public class BluetoothConnectionManager {
+
+public class BluetoothAndroidConnectionManager extends ConnectionManager{
+
+
+	private static BluetoothAndroidConnectionManager instance = null;
+
+	private BluetoothSocket bluetoothSocket;
+	
+	private BluetoothAndroidConnectionManager()
+	{
+		super();
+		
+	}
+
+	public static synchronized BluetoothAndroidConnectionManager getInstance() {
+		if(instance == null)
+		{
+			instance = new BluetoothAndroidConnectionManager();
+		}
+		return instance;
+	}
+	
+	
+	@Override
+	public void LauchDiscovery() {
+
+		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		if (mBluetoothAdapter == null) {
+		    // Device does not support Bluetooth
+		}
+		if (mBluetoothAdapter.isEnabled()) {
+			BluetoothAndroidDiscoveryManager androidDiscoveryManager = new BluetoothAndroidDiscoveryManager();
+			androidDiscoveryManager.startdiscoveryDevice();
+		}
+		
+	}
+
+	
+	@Override
+	public void closeConnectionComplementary() {
+
+		Log.d("BluetoothConnectionManager", "BluetoothConnectionManager close");
+
+		try {
+			if (bluetoothSocket != null) {
+				bluetoothSocket.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		bluetoothSocket = null;
+
+	}
+
+	@Override
+	public void newConnectionComplementary(Object bluetoothSocket) {
+		Log.d("BluetoothConnectionManager", "newConnectionComplementary");
+		this.bluetoothSocket = (BluetoothSocket) bluetoothSocket;
+		
+		  try {
+			streamConnection = new StreamedConnection(this.bluetoothSocket.getInputStream(), this.bluetoothSocket.getOutputStream());
+			streamConnection.addConnectionListener(connection);
+			
+		  } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/*
 
 	private static BluetoothConnectionManager instance = null;
 	private StreamedConnection streamConnection;
@@ -21,12 +87,7 @@ public class BluetoothConnectionManager {
 	private BluetoothSocket bluetoothSocket;
 	private List<ServiceConnection> serviceConnections;
 	
-	private BluetoothConnectionManager()
-	{
-		super();
-		streamConnection = null;
-		serviceConnections = new ArrayList<ServiceConnection>();
-	}
+
 	
 	public boolean isServiceConnectionExist(ServiceConnection serviceConnection)
 	{
@@ -167,6 +228,7 @@ public class BluetoothConnectionManager {
 			serviceConnection.onConnectionBegin();
 		}
 	}
+	
 	private void dispatchWinConnector(){
 		if(serviceConnections.size()>0)
 		{
@@ -178,5 +240,5 @@ public class BluetoothConnectionManager {
 		for (ServiceConnection serviceConnection : serviceConnections) {
 			serviceConnection.onLoseControl();
 		}
-	}
+	}*/
 }

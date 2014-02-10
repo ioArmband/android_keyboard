@@ -1,22 +1,19 @@
 package org.tse.pri.ioarmband.client.android.connect;
 
 import java.util.Set;
-import java.util.UUID;
+
+import org.tse.pri.ioarmband.io.connection.manager.DiscoveryManager;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.ParcelUuid;
 import android.util.Log;
 
-public class BluetoothDiscoveryManager {
-
-	public static UUID CLIENT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
+public class BluetoothAndroidDiscoveryManager extends DiscoveryManager{
 	
-	
-	
-	public static void startdiscoveryDevice()
+	public void startdiscoveryDevice()
 	{ 
-		if(!BluetoothConnectionManager.getInstance().isConnected())
+		if(!BluetoothAndroidConnectionManager.getInstance().isConnected())
 		{
 			BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 			if (bluetoothAdapter == null)
@@ -38,8 +35,8 @@ public class BluetoothDiscoveryManager {
 				for (int i = 0; i < uuids.length; i++) {
 					Log.d("MainActivity",uuids[i].toString());
 					//TODO: gestion multi conexion
-					if(uuids[i].toString().equals(BluetoothDiscoveryManager.CLIENT_UUID.toString())){
-						ConnectThread connect = new ConnectThread(bluetoothDevice);
+					if(uuids[i].toString().equals(BluetoothAndroidDiscoveryManager.CLIENT_UUID.toString())){
+						AndroidConnectThread connect = new AndroidConnectThread(bluetoothDevice);
 						connect.start();
 						return;
 					}

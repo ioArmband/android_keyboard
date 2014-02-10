@@ -1,12 +1,13 @@
-package org.tse.pri.ioarmband.client.android.keyboard;
+package org.tse.pri.ioarmband.client.android;
 
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tse.pri.ioarmband.client.android.connect.BluetoothConnectionManager;
-import org.tse.pri.ioarmband.client.android.connect.ServiceConnection;
-import org.tse.pri.ioarmband.io.connection.StreamedConnection;
+import org.tse.pri.ioarmband.client.android.connect.BluetoothAndroidConnectionManager;
+import org.tse.pri.ioarmband.client.android.keyboard.R;
+import org.tse.pri.ioarmband.client.android.sms.SmsService;
+import org.tse.pri.ioarmband.io.connection.manager.ServiceConnection;
 import org.tse.pri.ioarmband.io.message.Command;
 import org.tse.pri.ioarmband.io.message.GestureMessage;
 import org.tse.pri.ioarmband.io.message.enums.GestureType;
@@ -14,7 +15,6 @@ import org.tse.pri.ioarmband.io.message.enums.GestureType;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,12 +31,11 @@ public class MainActivity extends Activity  implements ServiceConnection {
 	Button btSend;
 	Button btSmsService;
 	TextView tvEtat;
-	BluetoothAdapter bluetoothAdapter;
 	MainActivity activity;
 	
 	private static Logger logger = LoggerFactory.getLogger(MainActivity.class);
 	
-	private BluetoothConnectionManager manageBluetoothConnexion;
+	private BluetoothAndroidConnectionManager manageBluetoothConnexion;
 
 	private final static int REQUEST_CODE_ENABLE_BLUETOOTH = 0;
 	
@@ -55,13 +54,7 @@ public class MainActivity extends Activity  implements ServiceConnection {
 		btSmsService =(Button) findViewById(R.id.bt_launchService);
 		btSmsService.setOnClickListener(clickBtLaunchService);
 		
-		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		if (bluetoothAdapter == null)
-		{
-			tvEtat.setText("pas de bluetooth");
-		}
-		
-		manageBluetoothConnexion = BluetoothConnectionManager.getInstance();
+		manageBluetoothConnexion = BluetoothAndroidConnectionManager.getInstance();
 		logger.info("My Application Created");
 
 	}
@@ -119,7 +112,7 @@ public class MainActivity extends Activity  implements ServiceConnection {
 			GestureMessage msg = new GestureMessage();
 			msg.setType(GestureType.TOUCH); 
 			msg.setSourceName("send via keyboard android");
-			BluetoothConnectionManager.getInstance().sendMessage(msg);
+			BluetoothAndroidConnectionManager.getInstance().sendMessage(msg);
 		}
 	};
 
@@ -160,29 +153,36 @@ public class MainActivity extends Activity  implements ServiceConnection {
 		});	
 	}
 
-
-
+	
 	@Override
-	public void onConnectionBegin() {
-		Log.d("MainActivity","onConnectionBegin");
-		
+	public void onWinControl() {
 		runOnUiThread(new Runnable() {
 		     @Override
 		     public void run() {
-		    	 tvEtat.setText("Connexion done");
+		    	 tvEtat.setText("Win Control");
 		    }
 		});
-	}
-
-	@Override
-	public void onWinControl() {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onLoseControl() {
-		// TODO Auto-generated method stub
+		runOnUiThread(new Runnable() {
+		     @Override
+		     public void run() {
+		    	 tvEtat.setText("Lose Control");
+		    }
+		});
+	}
+
+	@Override
+	public void onConnectionStarted() {
+		runOnUiThread(new Runnable() {
+		     @Override
+		     public void run() {
+		    	 tvEtat.setText("Connection Begin");
+		    }
+		});
 		
 	}
 }
