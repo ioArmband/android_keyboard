@@ -57,6 +57,7 @@ public class SmsService extends Service  implements ServiceConnection{
 	
 	@Override
 	public void onDestroy() {
+		Toast.makeText(this, "SmsService onDestroy", Toast.LENGTH_SHORT).show();
 		bluetoothConnectionManager.removeUseConnection(smsService);
 		super.onDestroy();
 		  unregisterReceiver(smsReceiver);

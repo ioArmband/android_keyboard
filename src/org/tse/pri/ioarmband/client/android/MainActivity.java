@@ -22,16 +22,18 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
-
 public class MainActivity extends Activity  implements ServiceConnection {
 
 	Button btConnect;
 	Button btDisconnect;
 	Button btSend;
-	Button btSmsService;
+	Switch switchLaunchService;
 	TextView tvEtat;
 	MainActivity activity;
+	
+	Intent serviceIntent ;
 	
 	private static Logger logger = LoggerFactory.getLogger(MainActivity.class);
 	
@@ -51,8 +53,10 @@ public class MainActivity extends Activity  implements ServiceConnection {
 		btSend = (Button) findViewById(R.id.bt_send);
 		btSend.setOnClickListener(clickBtSend);
 		tvEtat = (TextView) findViewById(R.id.tv_etat_bluetooth);
-		btSmsService =(Button) findViewById(R.id.bt_launchService);
-		btSmsService.setOnClickListener(clickBtLaunchService);
+		
+		
+		switchLaunchService = (Switch) findViewById(R.id.switch_launchService);
+		switchLaunchService.setOnClickListener(clickBtLaunchService);
 		
 		manageBluetoothConnexion = BluetoothAndroidConnectionManager.getInstance();
 		logger.info("My Application Created");
@@ -78,12 +82,17 @@ public class MainActivity extends Activity  implements ServiceConnection {
 	 
 	private OnClickListener clickBtLaunchService = new OnClickListener() {
 		public void onClick(View v) {
-			ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-			if(!isServiceRunning(activityManager,"SmsService"))
+			
+			
+			if(switchLaunchService.isChecked())
 			{
-				Intent serviceIntent = new Intent();
-				serviceIntent.setClass(activity,SmsService.class);
-				startService(serviceIntent);
+					serviceIntent = new Intent();
+					serviceIntent.setClass(activity, SmsService.class);
+					startService(serviceIntent);
+			}
+			else
+			{
+					stopService(serviceIntent);
 			}
 		}
 	};

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="48dp"
     android:orientation="vertical" 
-    android:background="#AAAAAA"
+    android:background="#FFFFFF"
     android:layout_gravity="center_vertical"
      android:textAlignment="center">
 
@@ -26,6 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
+            android:layout_marginLeft="14dp"
             android:text="ioArmBand keyboard"
             android:textAlignment="center"
             android:textAppearance="?android:attr/textAppearanceMedium" />
