@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.tse.pri.ioarmband.client.android.keyboard"
+    package="org.ioarmband.client.android.keyboard"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -27,7 +27,7 @@
         android:theme="@style/AppTheme" >
         
         <service
-            android:name="org.tse.pri.ioarmband.client.android.keyboard.ClavierService"
+            android:name="org.ioarmband.client.android.keyboard.ClavierService"
             android:label="ioarmband keyboard"
             android:permission="android.permission.BIND_INPUT_METHOD" >
             <intent-filter>
@@ -40,7 +40,7 @@
         </service>
 
         <activity
-            android:name="org.tse.pri.ioarmband.client.android.MainActivity"
+            android:name="org.ioarmband.client.android.MainActivity"
             android:label="@string/title_activity_main" >
              <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,10 +49,10 @@
             </intent-filter>
         </activity>
         
-         <service android:name="org.tse.pri.ioarmband.client.android.sms.SmsService"
+         <service android:name="org.ioarmband.client.android.sms.SmsService"
         android:enabled="true"/>
         
-         <receiver android:name="org.tse.pri.ioarmband.client.android.sms.StartAutoSmsRecevier">
+         <receiver android:name="org.ioarmband.client.android.sms.StartAutoSmsRecevier">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>

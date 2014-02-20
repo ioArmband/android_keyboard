@@ -1,24 +1,20 @@
-package org.tse.pri.ioarmband.client.android.sms;
+package org.ioarmband.client.android.sms;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.tse.pri.ioarmband.client.android.connect.ImageEncoderAndroid;
-import org.tse.pri.ioarmband.io.message.TextMessageAppMessage;
+import org.ioarmband.android.connection.ImageEncoderAndroid;
+import org.ioarmband.net.message.impl.TextMessageAppMessage;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -27,7 +23,6 @@ import android.provider.MediaStore;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
-import android.widget.ImageView;
 
 public class SmsReceiver extends BroadcastReceiver{
 

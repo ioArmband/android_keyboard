@@ -1,12 +1,11 @@
-package org.tse.pri.ioarmband.client.android.keyboard;
-
-import org.tse.pri.ioarmband.client.android.keyboard.R;
+package org.ioarmband.client.android.keyboard;
 
 import android.content.Context;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 
 public class MyKeyboardView extends LinearLayout{
 	
@@ -46,9 +45,10 @@ public class MyKeyboardView extends LinearLayout{
 		mHandler.post(runnable);
     }
 	
-	private void init()
+	void init()
 	{
 		
 	}
+	
 
 }
